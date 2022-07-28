@@ -1,23 +1,57 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { defineAsyncComponent, reactive, ref, watchEffect } from 'vue'
 import { useListStore } from './store'
+import { ElLoading } from 'element-plus'
+import { storeToRefs } from 'pinia'
+import { Paginate } from './utils/type'
 
-const paginate = reactive({
+const CardItem = defineAsyncComponent(() => import('./components/CardItem.vue'))
+
+const container = ref<HTMLElement | null>(null)
+const itemRefs = ref<HTMLElement[]>([])
+const paginate: Paginate = reactive({
   page: 1,
-  per_page: 10
+  per_page: 15
 })
-const listStore = useListStore()
-const test = async () => {
-  await listStore.getUserReposList({ userId: 'sxzz', params: paginate })
+
+const dynamicRefs = (el: HTMLElement) => {
+  itemRefs.value.push(el)
 }
+
+const listStore = useListStore()
+
+watchEffect(() => {
+  if (itemRefs.value.length <= 0) return
+  const target = itemRefs.value[itemRefs.value.length - 1]
+  const callback = (entries: IntersectionObserverEntry[], observer: IntersectionObserver): void => {
+    if (entries[0].isIntersecting) {
+      console.log(1)
+    } else {
+      observer.unobserve(target)
+    }
+  }
+  const options = {
+    root: container.value
+  }
+  const observer = new IntersectionObserver(callback, options)
+  observer.observe(target)
+})
+
+const getfirstData = async (): Promise<void> => {
+  const loading = ElLoading.service()
+  await listStore.getUserReposList({ userId: 'sxzz', params: paginate })
+  loading.close()
+}
+
+getfirstData()
+
+const { list } = storeToRefs(listStore)
 </script>
 
 <template>
-  <div class="md:container mx-auto">
-    <el-button @click="test">test</el-button>
+  <div ref="container" class="md:container mx-auto py-2 flex flex-col gap-2">
+    <div :ref="dynamicRefs" v-for="data in list" :key="data.id">
+      <CardItem v-bind="data" />
+    </div>
   </div>
 </template>
-
-<style scoped>
-
-</style>

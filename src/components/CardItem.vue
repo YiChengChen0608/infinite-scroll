@@ -1,37 +1,40 @@
 <script lang="ts" setup>
 defineProps({
-  name: {
+  activityNo: {
     type: String,
     default: ''
   },
-  visibility: {
+  activityName: {
     type: String,
     default: ''
   },
-  is_template: {
-    type: Boolean,
-    required: true
+  activityKind: {
+    type: String,
+    default: ''
   },
-  html_url: {
+  activityType: {
+    type: String,
+    default: ''
+  },
+  activityOrganizer: {
     type: String,
     default: ''
   }
 })
 
-const getFirstWordUpperCase = (character: string): string => {
-  const words = character.split('')
-  words[0] = words[0].toUpperCase()
-  return words.join('')
-}
-
 </script>
 <template>
   <el-card>
     <div class="flex items-center gap-2">
-      <h4 class="text-xl font-medium text-blue-500 text-ellipsis overflow-hidden whitespace-nowrap">{{ name }}</h4>
-      <small class="border rounded-full px-2 text-ellipsis overflow-hidden whitespace-nowrap">{{ getFirstWordUpperCase(visibility) + (is_template ? ' template' : ' ' )}}</small>
+      <h4 class="text-xl font-medium text-blue-500 text-ellipsis overflow-hidden whitespace-nowrap">{{ activityName }}</h4>
+      <small class="border rounded-full px-2 text-ellipsis overflow-hidden whitespace-nowrap">{{ activityNo }}</small>
     </div>
     <div class="my-2"></div>
-    <small class="break-words">{{ html_url }}</small>
+    <small class="break-words">{{ activityOrganizer }}</small>
+    <div class="my-2"></div>
+    <small class="flex gap-2">
+      <el-tag v-if="activityType">{{ activityType }}</el-tag>
+      <el-tag v-if="activityKind">{{ activityKind }}</el-tag>
+    </small>
   </el-card>
 </template>

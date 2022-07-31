@@ -7,10 +7,10 @@ export default defineConfig({
   server: {
     port: 3000,
     proxy: {
-      '/github': {
-        target: 'https://api.github.com',
+      '/api': {
+        target: 'https://isports.sa.gov.tw/Api/Rest/V1',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/github/, '')
+        rewrite: (path) => path.replace(/^\/api/, '')
       }
     }
   }

@@ -1,20 +1,24 @@
 import { defineStore } from 'pinia'
 import { request } from '../utils/api'
-import { Paginate } from '../utils/type'
 
-const baseURL: string = 'http://localhost:3000/github'
+const baseURL: string = 'http://localhost:3000/api'
+
+type Params = {
+  pageNo: number,
+  pageSize: number,
+  paging: boolean
+}
 
 type Query = {
-  userId: string,
-  params: Paginate
+  params: Params
 }
 
 type List = {
-  id: number,
-  name: string,
-  visibility: string,
-  html_url: string,
-  is_template: boolean
+  activityNo: string,
+  activityName: string,
+  activityKind: string,
+  activityType: string,
+  activityOrganizer: string,
 }
 
 export const useListStore = defineStore('list', {
@@ -22,21 +26,23 @@ export const useListStore = defineStore('list', {
     list: [] as List[]
   }),
   actions: {
-    async getUserReposList ({ userId, params }: Query): Promise<void> {
+    async getActivityList ({ params }: Query): Promise<boolean | undefined> {
       try {
-        const { data } = await request({
-          url: `${baseURL}/users/${userId}/repos`,
+        const { data: { data } } = await request({
+          url: `${baseURL}/Activity.svc/GetActivityList`,
           params
         })
-        this.list = data.map(({ id, name, visibility, html_url, is_template }: List) => {
+        const list = data.map(({ activityNo, activityName, activityKind, activityType, activityOrganizer }: List) => {
           return {
-            id,
-            name,
-            visibility,
-            html_url,
-            is_template
+            activityNo,
+            activityName,
+            activityKind,
+            activityType,
+            activityOrganizer
           }
         })
+        this.list = [...this.list, ...list]
+        return !data.length
       } catch (error) {
         console.error(error.message || error.response.data.message)
       }
